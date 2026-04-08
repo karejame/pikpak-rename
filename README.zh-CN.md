@@ -1,64 +1,81 @@
 # PikPak Rename Pro
 
-> A reliable batch renamer for PikPak with zero manual auth.
+> 一款可靠的 PikPak 批量重命名工具，无需任何手动验证。
 
-Batch rename files on PikPak via browser script.
-
-------------------------------------------------------------------------
-
-## Features
-
--   Batch rename
--   RegExp replace
--   Auto auth (no manual token)
--   Optional index suffix
--   Adjustable delay (anti-rate-limit)
+通过浏览器脚本批量重命名 PikPak 文件。
 
 ------------------------------------------------------------------------
 
-## Install
+## 功能
 
-1.  Install Tampermonkey\
-2.  Add this script\
-3.  Open https://mypikpak.com/
+- 批量重命名
 
-------------------------------------------------------------------------
+- 正则表达式替换
 
-## Usage
+- 自动认证（无需手动输入令牌）
 
-1.  Open target folder\
-2.  Click around page → wait until status = `Ready`\
-3.  Click `Scan`\
-4.  Configure:
-    -   `Search`: RegExp
-    -   `Replace`: replacement (empty = remove)
-5.  Click `Rename`
+- 可选索引后缀
+
+- 可调节延迟（防速率限制）
 
 ------------------------------------------------------------------------
 
-## Example
+## 安装
 
-    Search:  S01E(\d+)
-    Replace: Episode_$1
+1. 安装 Tampermonkey\
 
-------------------------------------------------------------------------
+2. 添加此脚本\
 
-## Notes
-
--   Must reach `Ready` before use\
--   Recommended delay: `1000–2000 ms`\
--   Invalid RegExp will throw error\
--   Large batches run sequentially (by design)
+3. 打开 https://mypikpak.com/
 
 ------------------------------------------------------------------------
 
-## Dev Hint
+## 使用方法
 
-Hooks `fetch` / `XMLHttpRequest` to extract auth headers and uses
-`GM_xmlhttpRequest` for API calls.
+1. 打开目标文件夹\
+
+2. 点击页面 → 等待状态变为 `Ready`\
+
+3. 点击 `Scan`\
+
+4. 配置：
+
+- `Search`：正则表达式
+
+- `Replace`：替换（留空 = 删除）
+
+5. 点击 `Rename`
 
 ------------------------------------------------------------------------
 
-## License
+## 示例
 
-For personal use only.
+搜索：S01E(\d+)
+
+替换：Episode_$1
+
+------------------------------------------------------------------------
+
+## 注意事项
+
+- 使用前必须达到 `Ready`\
+
+- 建议延迟：1000–2000 毫秒
+
+- 无效的正则表达式将抛出错误
+
+- 大批量数据按顺序执行（设计如此）
+
+------------------------------------------------------------------------
+
+## 开发提示
+
+钩子使用 `fetch` / `XMLHttpRequest` 提取身份验证标头，并使用
+
+`GM_xmlhttpRequest` 进行 API 调用。
+
+------------------------------------------------------------------------
+
+## 许可
+
+仅限个人使用。
