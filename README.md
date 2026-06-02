@@ -1,24 +1,21 @@
-# PikPak Rename Pro 
+# PikPak Rename Pro
 
 [![Tampermonkey](https://img.shields.io/badge/Tampermonkey-✔-informational)](https://www.tampermonkey.net/)
-[![Version](https://img.shields.io/badge/version-7.0-blue)](https://github.com/karejame/pikpak-rename)
+[![Version](https://img.shields.io/badge/version-6.0-blue)](https://github.com/karejame/pikpak-rename)
 
-**PikPak Rename Pro** is a Tampermonkey userscript that adds a powerful batch file renaming panel to the [PikPak](https://mypikpak.com/) cloud storage web interface. Rename hundreds of files in seconds with regex find-and-replace, case conversion, auto-numbering, and more — all without leaving your browser.
+**PikPak Rename Pro** is a Tampermonkey userscript that adds a batch file renaming panel to the [PikPak](https://mypikpak.com/) cloud storage web interface. Rename files with regex find-and-replace and optional index appending — all without leaving your browser.
 
 ---
 
 ## Features
 
-- **Multi-step rename pipeline** — chain multiple find-and-replace rules using regular expressions
-- **Filter by type** — target only files or only folders, or filter by file extension and name pattern
-- **Case conversion** — transform filenames to UPPER, lower, or Title Case
-- **Auto-numbering** — add sequential numbers with configurable format (01, 001, A, B, C, a, b, c), separator, start value, and step
-- **Prefix / Suffix** — prepend or append text to filenames
-- **Preview before executing** — see the full list of changes before they take effect
-- **Pause / Cancel** — control the rename process mid-execution
-- **Rename history** — view past rename operations and roll back (undo) any of them
-- **Preset management** — save and load rename configurations; export/import presets as JSON
-- **Copy logs** — copy the operation log to clipboard for record-keeping
+- **Regex find-and-replace** — search filenames using regular expressions and replace matches
+- **Auto-numbering** — append a sequential index (`_01`, `_02`, …) to filenames
+- **Keep extension** — optionally preserve file extensions during rename
+- **Auto credential capture** — automatically extracts authentication credentials from PikPak's network requests (no manual token input)
+- **Configurable delay** — set a base delay between rename requests with random jitter to avoid rate limiting
+- **Draggable panel** — move the floating panel anywhere on screen
+- **Credential status** — real-time display of authentication readiness
 
 ---
 
@@ -47,39 +44,21 @@ Install a userscript manager for your browser:
 ### Quick Start
 
 1. Open any folder in PikPak web interface.
-2. Click the **Scan** button in the rename panel to load all files in the current folder.
-3. (Optional) Set filters to target specific files.
-4. Add rename rules — for example, replace spaces with underscores.
-5. Click **Preview** to verify the changes.
-6. Click **Execute** to apply the renaming.
+2. Wait for the credential status to show **Ready**.
+3. Click **Scan** to load all files in the current folder.
+4. Set rename rules — enter a regex pattern in **Search** and replacement text in **Replace**.
+5. (Optional) Check **Append index** to add sequential numbers, or uncheck **Keep extension** to strip extensions.
+6. Click **Rename** to apply the batch rename.
 
-### Rename Pipeline
-
-Each rename step is a find-and-replace operation:
+### Rename Options
 
 | Setting | Description |
 |---------|-------------|
-| **Find** | Text or regex pattern to search for |
-| **Replace** | Text to replace matches with |
-| **Enable** | Checkbox to toggle this step on/off |
-
-Steps are executed in order from top to bottom.
-
-### Auto-numbering Options
-
-| Option | Values |
-|--------|--------|
-| Format | `01` / `001` / `A` / `B` / `C` / `a` / `b` / `c` / None |
-| Position | Before name / After name |
-| Separator | e.g. `_`, `-`, space |
-| Start at | Custom starting number |
-| Step | Increment between numbers |
-
-### Filters
-
-- **Extension** — e.g. `.jpg`, `.mp4` (leave empty for all)
-- **Kind** — All / File / Folder
-- **Name contains** — substring filter
+| **Search** | Regular expression pattern to search for in filenames (without extension) |
+| **Replace** | Text to replace matches with (leave empty to delete matches) |
+| **Append index** | Append `_01`, `_02`, … to each filename |
+| **Keep extension** | Preserve the original file extension (checked by default) |
+| **Delay** | Base delay in milliseconds between rename requests (random 0–600ms added) |
 
 ---
 
@@ -87,11 +66,10 @@ Steps are executed in order from top to bottom.
 
 `pikpak-rename.user.js` is a single, self-contained JavaScript file (no dependencies, no build step). It works by:
 
-1. **Hooking** into `fetch()` and `XMLHttpRequest` to capture PikPak's authentication credentials (Bearer token, device ID, captcha token).
+1. **Hooking** into `fetch()` and `XMLHttpRequest` to capture PikPak's authentication credentials (Bearer token, device ID, captcha token, client ID, client version).
 2. **Listing** files via the official PikPak Drive REST API (`api-drive.mypikpak.com`) with automatic pagination.
-3. **Applying** the user-configured rename pipeline locally to compute new filenames.
+3. **Applying** the user-configured rename rules locally to compute new filenames.
 4. **Executing** rename API calls with a configurable delay between requests to avoid rate limiting.
-5. **Storing** operation history in `localStorage` for later rollback.
 
 ### Key Functions
 
@@ -99,17 +77,16 @@ Steps are executed in order from top to bottom.
 |----------|---------|
 | `hookFetch()` / `hookXHR()` | Intercept PikPak network requests to extract credentials |
 | `fetchAllFiles()` | Paginate through all files in the current folder |
-| `processName()` | Apply the rename pipeline (regex, case, prefix/suffix, numbering) |
+| `processName()` | Apply rename rules (regex replace, index appending, extension handling) |
 | `renameFile()` | Call the PikPak API to rename a single file |
-| `handleRollback()` | Reverse a previous rename operation using stored history |
 | `createUI()` | Build the entire floating panel UI dynamically |
 
 ### Credential Status
 
 The panel displays a credential status badge:
 
-- ✅ **Ready** — all credentials captured, script is ready to use
-- ⏳ **Waiting** — still capturing credentials; refresh the page if it persists
+- **Ready** — all credentials captured, script is ready to use
+- **Missing: Token / DeviceId / CaptchaToken** — shows which credentials are still needed; click around in PikPak to trigger authenticated requests
 
 ---
 
@@ -130,16 +107,16 @@ This is a vanilla JavaScript project with no build tools. To modify:
 
 ## FAQ
 
-**Q: The panel doesn't appear on mypikpak.com.**  
+**Q: The panel doesn't appear on mypikpak.com.**
 A: Make sure Tampermonkey is enabled for the site. Try refreshing the page and waiting a few seconds.
 
-**Q: Credentials show "Waiting" forever.**  
-A: Reload the PikPak page. The script hooks into network requests made by the PikPak app.
+**Q: Credentials show "Missing" forever.**
+A: Reload the PikPak page and click around (navigate to a folder, etc.). The script hooks into network requests made by the PikPak app to capture credentials.
 
-**Q: Rename fails with an error.**  
+**Q: Rename fails with an error.**
 A: Check the log panel for details. Common issues include rate limiting (increase the delay between requests) or insufficient permissions on the file.
 
-**Q: Can I run this in a mobile browser?**  
+**Q: Can I run this in a mobile browser?**
 A: This script is designed for desktop browsers with userscript support. Mobile support is limited.
 
 ---
