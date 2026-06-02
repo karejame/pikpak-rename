@@ -275,9 +275,9 @@
         });
 
         panel.innerHTML = `
-<div id="pkhandle" style="cursor:move;font-weight:bold;padding-bottom:7px;margin-bottom:9px;border-bottom:1px solid #222;display:flex;justify-content:space-between;align-items:center">
-  PikPak Rename Pro v6.0
-  <span id="pkst" style="font-size:11px;color:#ffaa33">Missing</span>
+<div id="pkhandle" style="cursor:move;padding-bottom:7px;margin-bottom:9px;border-bottom:1px solid #222">
+  <div style="font-weight:bold">PikPak Rename Pro v6.0</div>
+  <div id="pkst" style="font-size:11px;color:#ffaa33;margin-top:2px">Missing</div>
 </div>
 <div style="margin-bottom:5px"><div style="font-size:11px;color:#555">Search (RegExp)</div><input id="pksearch" placeholder="Example: S01E(\\d+)" style="${INPUT_STYLE}"></div>
 <div style="margin-bottom:9px"><div style="font-size:11px;color:#555">Replace</div><input id="pkreplace" placeholder="Empty means remove" style="${INPUT_STYLE}"></div>
