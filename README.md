@@ -1,155 +1,323 @@
-# PikPak Rename Pro
+# 🎉 PikPak Rename Pro — 零基础小白使用指南
 
-[![Tampermonkey](https://img.shields.io/badge/Tampermonkey-✔-informational)](https://www.tampermonkey.net/)
-[![Version](https://img.shields.io/badge/version-7.0-blue)](https://github.com/karejame/pikpak-rename)
-
-**PikPak Rename Pro** is a Tampermonkey userscript that adds a powerful batch file renaming panel to the [PikPak](https://mypikpak.com/) cloud storage web interface. Rename hundreds of files in seconds with regex find-and-replace, case conversion, auto-numbering, and more — all without leaving your browser.
+> **一句话介绍：** 装上这个脚本，在 PikPak 网盘里你就能像管理电脑文件夹一样，一口气给几百个文件批量改名、分类、去重，不用下载任何软件。
 
 ---
 
-## Features
+## 📌 第一步：装一个「脚本管家」
 
-- **Multi-step rename pipeline** — chain multiple find-and-replace rules using regular expressions
-- **Filter by type** — target only files or only folders, or filter by file extension and name pattern
-- **Case conversion** — transform filenames to UPPER, lower, or Title Case
-- **Auto-numbering** — add sequential numbers with configurable format (01, 001, A, B, C, a, b, c), separator, start value, and step
-- **Prefix / Suffix** — prepend or append text to filenames
-- **Preview before executing** — see the full list of changes before they take effect
-- **Pause / Cancel** — control the rename process mid-execution
-- **Rename history** — view past rename operations and roll back (undo) any of them
-- **Preset management** — save and load rename configurations; export/import presets as JSON
-- **Copy logs** — copy the operation log to clipboard for record-keeping
+这个脚本是给浏览器用的，你需要先装一个叫 **Tampermonkey（油猴）** 的浏览器插件。
 
----
+| 浏览器 | 点这里安装 |
+|--------|-----------|
+| Chrome / Edge | [点我安装 Tampermonkey](https://www.tampermonkey.net/) |
+| Firefox | [点我安装 Tampermonkey](https://www.tampermonkey.net/) |
+| Safari | App Store 搜索 "Tampermonkey" 安装 |
 
-## Installation
-
-### Prerequisites
-
-Install a userscript manager for your browser:
-
-- [Tampermonkey](https://www.tampermonkey.net/) (recommended, Chrome / Firefox / Edge / Safari)
-- [Violentmonkey](https://violentmonkey.github.io/) (Chrome / Firefox / Edge)
-- [Greasemonkey](https://www.greasespot.net/) (Firefox)
-
-### Install the Script
-
-1. Install a userscript manager from the links above.
-2. Click the install link: **[pikpak-rename.user.js](./pikpak-rename.user.js)**
-3. Tampermonkey will open an installation page — click **Install**.
-4. Navigate to [https://mypikpak.com/](https://mypikpak.com/) and log in.
-5. A floating **PikPak Rename Pro** panel will appear after the page loads.
+> 💡 **装好后，浏览器右上角会出现一个像糖果盒的图标。**
 
 ---
 
-## Usage
+## 📌 第二步：安装「PikPak Rename Pro」脚本
 
-### Quick Start
+1. 点击本仓库里的 **[pikpak-rename.user.js](./pikpak-rename.user.js)** 文件。
+2. 网页顶部会出现 **Tampermonkey 安装按钮**（绿色 **Install**）。
+3. 点一下 **Install**，就装好了，全程不到 5 秒。
 
-1. Open any folder in PikPak web interface.
-2. Click the **Scan** button in the rename panel to load all files in the current folder.
-3. (Optional) Set filters to target specific files.
-4. Add rename rules — for example, replace spaces with underscores.
-5. Click **Preview** to verify the changes.
-6. Click **Execute** to apply the renaming.
+**【预留截图区 👇👇👇】**
 
-### Rename Pipeline
-
-Each rename step is a find-and-replace operation:
-
-| Setting | Description |
-|---------|-------------|
-| **Find** | Text or regex pattern to search for |
-| **Replace** | Text to replace matches with |
-| **Enable** | Checkbox to toggle this step on/off |
-
-Steps are executed in order from top to bottom.
-
-### Auto-numbering Options
-
-| Option | Values |
-|--------|--------|
-| Format | `01` / `001` / `A` / `B` / `C` / `a` / `b` / `c` / None |
-| Position | Before name / After name |
-| Separator | e.g. `_`, `-`, space |
-| Start at | Custom starting number |
-| Step | Increment between numbers |
-
-### Filters
-
-- **Extension** — e.g. `.jpg`, `.mp4` (leave empty for all)
-- **Kind** — All / File / Folder
-- **Name contains** — substring filter
+> 🖼 **请替换为：Tampermonkey 安装脚本的界面截图**
+> ```
+> [截图占位]
+> 建议尺寸：宽 800 px，展示 "Install" 按钮高亮
+> ```
 
 ---
 
-## Script Details
+## 📌 第三步：打开 PikPak 网页
 
-`pikpak-rename.user.js` is a single, self-contained JavaScript file (no dependencies, no build step). It works by:
+在浏览器里打开 [https://mypikpak.com/](https://mypikpak.com/)，**登录你的账号**。
 
-1. **Hooking** into `fetch()` and `XMLHttpRequest` to capture PikPak's authentication credentials (Bearer token, device ID, captcha token).
-2. **Listing** files via the official PikPak Drive REST API (`api-drive.mypikpak.com`) with automatic pagination.
-3. **Applying** the user-configured rename pipeline locally to compute new filenames.
-4. **Executing** rename API calls with a configurable delay between requests to avoid rate limiting.
-5. **Storing** operation history in `localStorage` for later rollback.
+等页面完全加载后，你会看到左上角（或你上次拖动到的位置）多出来一个 **蓝色浮动窗口**：
 
-### Key Functions
+**【预留截图区 👇👇👇】**
 
-| Function | Purpose |
-|----------|---------|
-| `hookFetch()` / `hookXHR()` | Intercept PikPak network requests to extract credentials |
-| `fetchAllFiles()` | Paginate through all files in the current folder |
-| `processName()` | Apply the rename pipeline (regex, case, prefix/suffix, numbering) |
-| `renameFile()` | Call the PikPak API to rename a single file |
-| `handleRollback()` | Reverse a previous rename operation using stored history |
-| `createUI()` | Build the entire floating panel UI dynamically |
-
-### Credential Status
-
-The panel displays a credential status badge:
-
-- ✅ **Ready** — all credentials captured, script is ready to use
-- ⏳ **Waiting** — still capturing credentials; refresh the page if it persists
+> 🖼 **请替换为：脚本面板出现在 PikPak 页面上的截图**
+> ```
+> [截图占位]
+> 建议说明：在截图中标注出 "扫描"、"预览"、"执行" 三个按钮位置
+> ```
 
 ---
 
-## Development
+## 📌 第四步：扫面你当前的文件夹
 
-This is a vanilla JavaScript project with no build tools. To modify:
+看到面板后，按这个顺序点：
 
-1. Edit `pikpak-rename.user.js` directly.
-2. The userscript manager will pick up changes automatically if tampermonkey is in dev mode, or re-install the updated script.
+1. **📂 扫描** — 脚本会自动把你当前打开的文件夹里的所有文件（包括子文件夹里的文件）全部列出来。
+2. 扫描完后，面板里会显示类似：`已加载 154 个文件`。
 
-### Adding a New Feature
+> ⚠️ **第一次用会显示状态 "Missing"？** 没关系，说明脚本还在"捞"你的登录信息。你在 PikPak 网页里随便点一个文件或文件夹，状态就会变成 ✅ **Ready**。只要看到了 Ready，就万事俱备。
 
-1. Add any new UI elements in the `createUI()` function.
-2. Implement the corresponding logic in a new function.
-3. Wire the event handlers inside `createUI()`.
+**【预留截图区 👇👇👇】**
 
----
-
-## FAQ
-
-**Q: The panel doesn't appear on mypikpak.com.**  
-A: Make sure Tampermonkey is enabled for the site. Try refreshing the page and waiting a few seconds.
-
-**Q: Credentials show "Waiting" forever.**  
-A: Reload the PikPak page. The script hooks into network requests made by the PikPak app.
-
-**Q: Rename fails with an error.**  
-A: Check the log panel for details. Common issues include rate limiting (increase the delay between requests) or insufficient permissions on the file.
-
-**Q: Can I run this in a mobile browser?**  
-A: This script is designed for desktop browsers with userscript support. Mobile support is limited.
+> 🖼 **请替换为：扫描完成后，面板显示 "已加载 xx 个文件" 的截图**
+> ```
+> [截图占位]
+> 建议标注：顶部的状态徽章（Ready / Missing）和文件数量
+> ```
 
 ---
 
-## License
+## 📌 第五步：添加改名规则
 
-This project is provided for personal and educational use. Use at your own risk.
+点击面板上方的 **「查找替换步骤」**（默认是展开的），你可以在里面「一层一层」地告诉脚本要怎么改：
+
+### 🌰 举个最经典的例子：把文件名里的空格换成下划线
+
+假设你本来有一群文件叫：
+```
+My Video File 1.mp4
+My Video File 2.mp4
+```
+
+你想改成：
+```
+My_Video_File_1.mp4
+My_Video_File_2.mp4
+```
+
+操作如下：
+1. 在 **查找内容** 里写：一个空格（直接按空格键）
+2. 在 **替换为** 里写：`_`
+3. 点击 **+ 添加步骤** 可以继续叠加更多规则
+
+> 💡 **小白提示：**
+> - 每添加一个步骤，就相当于告诉脚本「先这样改，再那样改」。
+> - 步骤是从上到下依次执行的，顺序很重要！
+
+**【预留截图区 👇👇👇】**
+
+> 🖼 **请替换为：面板中「查找替换步骤」区域的截图**
+> ```
+> [截图占位]
+> 建议标注：输入框位置、添加步骤按钮、复选框（打勾才生效）
+> ```
 
 ---
 
-## Repository
+## 📌 第六步：用「命名选项」一键加前缀 / 编号 / 改大小写
 
-- **GitHub**: [https://github.com/karejame/pikpak-rename](https://github.com/karejame/pikpak-rename)
+点击面板里的 **「命名选项」**（默认是折叠的，点一下箭头展开），你会看到一片新天地：
+
+| 你想做什么 | 怎么操作 |
+|-----------|---------|
+| **所有文件名前面加统一前缀** | 在前缀框输入，比如 `2024_` |
+| **所有文件名末尾加后缀** | 在后缀框输入，比如 `_final` |
+| **把字母全变大写** | 大小写转换选 `UPPER` |
+| **首字母变大写** | 大小写转换选 `Title` |
+| **给文件依次编号** | 勾选「添加编号」，选格式（01、001、A、a），选位置（名前/名后） |
+
+### 🌰 编号示例
+
+勾选「添加编号」，格式选 `01`，分隔符填 `-`，位置选「名后」：
+
+```
+输入：photo.jpg, photo.jpg, photo.jpg
+输出：photo-01.jpg, photo-02.jpg, photo-03.jpg
+```
+
+> ⚠️ **勾选「保留扩展名」很重要**，不打勾的话 `.mp4`、`.jpg` 可能会被当成文件名的一部分改掉。
+
+**【预留截图区 👇👇👇】**
+
+> 🖼 **请替换为：命名选项展开后的截图**
+> ```
+> [截图占位]
+> 建议标注：前缀框、编号勾选框、保留扩展名勾选框
+> ```
+
+---
+
+## 📌 第七步：筛选你只想改的文件
+
+如果你不想动文件夹里的全部文件，只想改某几种，点 **「筛选」** 展开：
+
+- **文件类型**：比如只改 `.mp4` 和 `.mkv`，输入 `.mp4,.mkv`
+- **类型**：选「仅文件」或「仅文件夹」
+- **文件名包含**：比如只改名里带 `Episode` 的文件，输入 `Episode`
+
+> 💡 留空 = 不限制 = 全部应用
+
+**【预留截图区 👇👇👇】**
+
+> 🖼 **请替换为：筛选区域展开后的截图**
+
+---
+
+## 📌 第八步：预览 —— 先看好再动手
+
+设置完规则后，一定要点 **👁 预览**！
+
+你会看到一张「原名 → 新名」的对照表。检查没有问题再执行。
+
+```
+My Video File 1.mp4  →  My_Video_File_1.mp4
+My Video File 2.mp4  →  My_Wideo_File_2.mp4
+```
+
+> 🚨 如果预览里发现打错字了（比如把 `Video` 打成 `Wideo`），别急，回去改规则，再点一次预览就行。
+
+**【预留截图区 👇👇👇】**
+
+> 🖼 **请替换为：预览列表的截图**
+> ```
+> [截图占位]
+> 建议标注：旧名（左）→ 新名（右）的样式对比
+> ```
+
+---
+
+## 📌 第九步：执行改名！
+
+确认预览没问题后，点击 **▶ 执行**。脚本会一个文件一个文件地帮你自动改名。
+
+- 执行过程中可以点 **⏸ 暂停**，随时停下来检查。
+- 后悔了可以点 **■ 停止** 取消后续操作。
+- 完成后，日志区会显示：
+  - 🟢 成功了多少个
+  - 🟡 跳过了多少个（名字没变就不用改）
+  - 🔴 失败了多少个
+
+**【预留截图区 👇👇👇】**
+
+> 🖼 **请替换为：执行完成后，日志区显示结果的截图**
+> ```
+> [截图占位]
+> 建议标注：进度文字、耗时、成功/失败数量
+> ```
+
+---
+
+## 📌 第十步：后悔药 —— 一键撤销
+
+改完名发现不对劲？别怕！
+
+1. 在面板里切换到 **📋 历史** 标签。
+2. 你会看到刚才那次操作记录。
+3. 点击 **↩ 撤销 (xx 个文件)**，就能全部恢复原样。
+
+> ⚠️ 历史记录保存在浏览器里，如果你换了电脑或清空了浏览器数据，就无法撤销了。
+
+**【预留截图区 👇👇👇】**
+
+> 🖼 **请替换为：历史记录列表和撤销按钮的截图**
+
+---
+
+## 📌 其他超实用功能速查表
+
+学会改名后，面板里还有一堆宝藏功能，按需自取：
+
+| 功能 | 入口 | 一句话说明 |
+|------|------|-----------|
+| **自动分类移动** | 📁 整理 → 分类 | 按你定的规则（比如 `.mp4` 移到 "视频" 文件夹）自动把文件归档到不同文件夹 |
+| **查找重复文件** | 📁 整理 → 去重 | 自动找出内容一样的重复文件，勾选后一键删除多余副本 |
+| **字幕匹配重命名** | 📁 整理 → 媒体 → 字幕匹配 | 自动把 `movie.srt` 改成和 `movie.mp4` 一样的名字，方便播放器识别 |
+| **剧集名标准化** | 📁 整理 → 媒体 → 剧集标准化 | 把各种乱七八糟的剧集文件名统一改成 `S01E01` 的规范格式 |
+| **监控离线下载任务** | ⚡ 任务 | 实时看你 PikPak 里正在下载、已完成、失败的任务，还能一键重试失败的 |
+| **批量生成分享链接** | 🔗 分享 | 勾选好文件，一键生成带密码或不带密码的分享链接，自动复制到剪贴板 |
+| **管理我的分享** | 🔗 分享 → 我的分享 | 查看你已发出的所有分享链接，一键删除失效的 |
+
+**【预留截图区 👇👇👇】**
+
+> 🖼 **请替换为：四个主标签页（重命名 / 整理 / 任务 / 分享）的并排截图**
+
+---
+
+## 📌 小白常见问题（FAQ）
+
+### ❓ 脚本装好了，PikPak 网页上没出现面板？
+
+1. 先确认 Tampermonkey 插件图标是**绿色/彩色**的（不是灰色）。
+2. 刷新一下 PikPak 网页，等 5~10 秒。
+3. 如果还是没有，点一下 Tampermonkey 图标，确认列表里有 "PikPak Rename Pro" 且开关是 **ON**。如果看到 **OFF**，点一下变成 **ON**，然后刷新网页。
+
+**【预留截图区 👇👇👇】**
+
+> 🖼 **请替换为：Tampermonkey 面板里脚本开关状态的截图**
+
+---
+
+### ❓ 顶部一直显示 "Missing"，无法扫描？
+
+这是因为脚本还没"抓到"你的登录信息。
+
+**解决办法：** 在 PikPak 网页里随便点一个文件、拖进一个文件夹、或者刷新一次页面。操作的同时脚本会在后台自动记录你的登录凭证，几秒钟后就会变成 **✅ Ready**。
+
+> 如果等 10 秒以上还是 Missing，尝试退出 PikPak 账号重新登录一次。
+
+**【预留截图区 👇👇👇】**
+
+> 🖼 **请替换为：Ready 状态徽章的截图，和 Missing 状态对比**
+
+---
+
+### ❓ 点了执行，但是有文件失败了？
+
+日志区会显示具体原因，常见情况：
+
+| 原因 | 怎么解决 |
+|------|---------|
+| 操作太快了被服务器限制 | 把「每次操作间隔」调大，比如从 1500 毫秒改成 3000 毫秒 |
+| 共享文件没有权限改 | 这些文件不是你的，无法重命名，跳过即可 |
+| 文件名包含非法字符 | 修改规则，避免使用 `\ / : * ? " < > \|` 这 9 个字符 |
+
+---
+
+### ❓ 能不能一次性改上万个文件？
+
+理论上可以，但**不建议一次超过 200~500 个**。为了你的账号安全，建议把时间间隔调大（比如 2000 毫秒），让 PikPak 服务器觉得你是个温柔的人类而不是疯狂的机器人。
+
+---
+
+### ❓ 这个脚本安全吗？会不会偷我账号？
+
+**脚本完全在你的浏览器里运行**，不会把任何数据发到第三方服务器。它确实会读取你的登录 Token 来帮你调用 PikPak 的官方接口（不然没法改名），但这个 Token 从不出你的浏览器。如果你还有顾虑，可以装完改完名后暂时关闭脚本。
+
+---
+
+## 📌 快捷键 & 小贴士
+
+- **拖拽面板**：按住面板最上面的蓝色标题栏，可以拖到屏幕任何位置，不会挡住你想看的内容。
+- **切换语言**：标题栏右侧有一个小按钮，可以在 **中文 / English** 之间随时切换。
+- **保存常用配置**：在 **历史** 右侧的 **预设** 标签里，可以把一套你常用的规则（比如「去空格 + 加前缀 + 编号」）命名保存下来。下次直接点「加载」，不用重新输入。
+- **导出 / 导入预设**：可以把你的规则导出成一段文字，发给朋友，朋友粘贴进去就能直接用一样的规则。
+
+**【预留截图区 👇👇👇】**
+
+> 🖼 **请替换为：预设保存/加载界面的截图**
+
+---
+
+## 📌 适用浏览器
+
+| 浏览器 | 支持情况 |
+|--------|---------|
+| Chrome / Edge / 国产浏览器（360、QQ、搜狗） | ✅ 完全支持 |
+| Firefox | ✅ 完全支持 |
+| Safari（Mac / iPad） | ✅ 支持（需 Tampermonkey） |
+| 手机浏览器 | ⚠️ 体验不佳，建议用电脑操作 |
+
+---
+
+## 📌 源码 & 更新
+
+本项目是一个纯原生 JavaScript 的浏览器脚本，单文件零依赖。
+
+- 你的修改建议/错误反馈请发：[GitHub Issues](https://github.com/karejame/pikpak-rename/issues)
+- Tampermonkey 会**自动检测更新**，脚本作者发布新版后，你的浏览器会提示你升级，点一下就搞定。
+
+---
+
+**祝你改名愉快！** 🚀

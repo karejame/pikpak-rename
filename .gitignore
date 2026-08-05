@@ -1,2 +1,24 @@
+# Private / local files
 /private/
+private/
+
+# Wiki / docs
 pikpak-rename-pro-wiki.md
+
+# OS files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# Editor files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Temp files
+tmp/
+temp/
+*.log
